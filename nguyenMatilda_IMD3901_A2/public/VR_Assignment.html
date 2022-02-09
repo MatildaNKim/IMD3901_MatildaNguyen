@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello, WebVR! - A-Frame- GESTURE</title>
+      <meta name="description" content="Hello, WebVR! - A-Frame">
+      <script src="/js/aframe-environment-component.min.js"></script>
+
+    <script src="//cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+<script src="/js/aframe.min.js"></script>
+<script src="https://unpkg.com/aframe-teleport-controls@0.2.x/dist/aframe-teleport-controls.min.js"></script>
+<script src="https://unpkg.com/aframe-controller-cursor-component@0.2.x/dist/aframe-controller-cursor-component.min.js"></script>
+<script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/random-color.js"></script>
+<script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/snap.js"></script>
+<script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/intersection-spawn.js"></script>
+
+    <link rel="stylesheet" href="/css/user-gesture.css">
+    <script>
+      AFRAME.registerComponent('start-experience', {
+        init: function () {
+          
+          console.log('scene loaded');
+          document.querySelector('#user-gesture-button').style.display='block';
+        }
+      });
+
+      
+     //Deleting 3D models (earth and mars)
+
+      AFRAME.registerComponent("remove-object", {
+        init: function() {
+          this.el.addEventListener("click", function(e) {
+            console.log(e.target)
+            e.target.remove(this.el);
+            });
+          this.el.addEventListener("mouseenter", function(e) {
+            console.log(e.target)
+            e.target.setAttribute('scale', {x: 1.5, y: 1.5, z: 1.5});
+            });
+          this.el.addEventListener("mouseleave", function(e) {
+            console.log(e.target)
+            e.target.setAttribute('scale', {x: 1, y: 1, z: 1});
+            });
+          }
+      });
+
+
+      const startExperience = function() {
+        //hide overlay
+        document.querySelector('#user-gesture-overlay').style.display='none';
+        
+        //start all ambient music
+        const ambientSounds = document.querySelectorAll('.ambient-music');
+        ambientSounds.forEach(function(soundEntity) {
+          soundEntity.components.sound.playSound();
+        });
+      }
+    </script>
+  </head>
+
+
+<body>
+  <div id="user-gesture-overlay">
+    <div class="center">
+      <button id="user-gesture-button" onclick="startExperience();">enter experience</button>
+    </div>
+  </div>
+  
+  <a-scene start-experience>
+
+    <a-assets timeout="10000">
+
+       <!-- NEW: ambient "space' music from https://soundcloud.com/royaltyfreebackgroundmusic/creative-commons-music-3946 -->
+ <audio id="space_music" src="/assets/SpaceMusic.mp3" preload="auto" crossorigin="anonymous"></audio>
+              
+      <!-- all Earth textures from https://www.solarsystemscope.com/textures/ . slightly modified -->
+
+      <!--EARTH MODEL-->
+      <img id="earth_map"      src="/assets/2k_earth_daymap.jpg" crossorigin="anonymous">
+
+      <!--MARS MODEL-->
+      <a-asset-item id="mars_model"     response-type="arraybuffer" src="/assets/mars.glb"></a-asset-item>
+
+    </a-assets>
+
+    <!-- model as a textured primitive/sphere and associated diffuse texture 'earth_map' -->
+    <a-entity event-listener remove-object id="earth" position="0 3.5 -6" rotation="0 0 0" scale="1 1 1"
+            geometry="primitive:sphere; radius:2.0" 
+            material="src:#earth_map;"></a-entity>
+
+    <!-- GLTF (GL Transimission Format: https://www.khronos.org/gltf/) model loaded in with built-in gltf-model component ( -->
+    <!-- gltf-model documentation: https://github.com/aframevr/aframe/blob/master/docs/components/gltf-model.md -->  
+    <a-entity event-listener remove-object id="mars" position="6 3.5 0" rotation="0 -90 0" scale="1 1 1"
+            gltf-model="#mars_model"></a-entity>
+
+   
+        <!--Sound-->
+        <a-entity sound="src:#space_music; autoplay:true;"></a-entity>
+
+    <a-assets>
+      <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
+      <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
+      <a-mixin id="voxel"
+         geometry="primitive: box; height: 0.5; width: 0.5; depth: 0.5"
+         material="shader: standard"
+         random-color
+         snap="offset: 0.25 0.25 0.25; snap: 0.5 0.5 0.5"
+      ></a-mixin>
+    </a-assets>
+
+    <a-cylinder id="ground" src="#groundTexture" radius="30" height="0.1"></a-cylinder>
+
+    <a-sky id="background" src="#skyTexture" theta-length="90" radius="30"></a-sky>
+    
+<a-entity movement-controls="fly: true" position="0 0 0">
+<a-entity camera position="0 1.6 0" look-controls></a-entity>
+<a-entity cursor="rayOrigin:mouse"></a-entity>
+<a-entity laser-controls="hand: right"></a-entity>
+</a-entity>
+
+    <!--
+
+        <a-box color="tomato" depth="2" height="2" width="2">
+            <a-animation attribute="rotation"
+                   dur="3000"
+                   to="0 360 0"
+                   repeat="indefinite">
+            </a-animation>
+            <a-animation attribute="position"
+                   dur="3000"
+                   from="-5 0 0"
+                   to="5 0 0"
+                   repeat="indefinite">
+            </a-animation>
+           <a-animation attribute="material.color" from="blue" to="red" dur="3000" repeat="indefinite"></a-animation>
+    
+         </a-box>
+        
+         <a-camera position='0 0 3' user-height='0'></a-camera>
+
+    
+
+    
+    <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+
+    -->
+
+    <!-- Hands. -->
+    <a-entity id="teleHand" hand-controls="left" teleport-controls="type: parabolic; collisionEntities: [mixin='voxel'], #ground"></a-entity>
+    <a-entity id="blockHand" hand-controls="right" controller-cursor intersection-spawn="event: click; mixin: voxel"></a-entity>
+
+    <!-- Spawn after drag and click -->
+    
+    <!-- Camera. -->
+    <a-camera>
+      <a-cursor intersection-spawn="event: click; mixin: voxel"></a-cursor>
+      
+    </a-camera>
+  </a-scene>
+</body>
+
+</html>
